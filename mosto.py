@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
-
+import os
+import json
 """
 diario/
     categoria/
@@ -15,6 +16,7 @@ diario/
 """
 noticias = [{}]
 
+
 def scrapeElMundo():
     print('el mundo')
     r = requests.get('https://www.elmundo.es/ciencia-y-salud/salud.html')
@@ -28,18 +30,22 @@ def scrapeElMundo():
             result = requests.get(link)
             soup = BeautifulSoup(result.text)
             article = soup.find('article')
-            articleBody = article.find('div', { 'class' : 'ue-l-article__body ue-c-article__body' })
-            
+            articleBody = article.find(
+                'div', {'class': 'ue-l-article__body ue-c-article__body'})
+
             if articleBody is None:
                 continue
             # Unwanted tags
-            unwantedDiv = articleBody.find('div', { 'class' : 'ue-c-article__trust' })
+            unwantedDiv = articleBody.find(
+                'div', {'class': 'ue-c-article__trust'})
             unwantedUl = articleBody.find('ul')
-            unwantedPremium = articleBody.find('div', {'class': 'ue-c-article__premium'})
-            unwantedDivRelated = articleBody.find('div', {'class' : 'ue-c-article__related-news ue-l-article--top-separator'})
+            unwantedPremium = articleBody.find(
+                'div', {'class': 'ue-c-article__premium'})
+            unwantedDivRelated = articleBody.find(
+                'div', {'class': 'ue-c-article__related-news ue-l-article--top-separator'})
             unwantedDiv.extract()
 
-            #try catch blocks no entiendo
+            # try catch blocks no entiendo
             try:
                 unwantedUl.extract()
             except:
@@ -49,7 +55,7 @@ def scrapeElMundo():
                 unwantedDiv.extract()
             except:
                 print('no trust')
-                
+
             try:
                 unwantedPremium.extract()
             except:
@@ -60,11 +66,12 @@ def scrapeElMundo():
             except:
                 print('no related')
             print(articleBody.text)
-        
-        
+
+
 def scrapeElPais():
     print('el pais')
-    noticiarios = [{'name':'Ciencia', 'code': 'ciencia'}, {'name':'Tecnologia', 'code': 'ciencia'}, {'name':'Salud', 'code': 'noticias/salud'}]
+    noticiarios = [{'name': 'Sanidad', 'code': 'noticias/salud'}, {'name': 'Ciencia',
+                                                                 'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'ciencia'}]
     for noticiario in noticiarios:
         r = requests.get(f'https://elpais.com/{noticiario["code"]}/')
         soup = BeautifulSoup(r.text, 'html.parser')
@@ -76,17 +83,17 @@ def scrapeElPais():
             fecha = article.find('time')['datetime']
             req = requests.get(link)
             soupArt = BeautifulSoup(req.text, 'html.parser')
-            section = soupArt.find('section',attrs={'class':'article_body'})
+            section = soupArt.find('section', attrs={'class': 'article_body'})
             if(section != None):
                 print('section')
                 everyP = section.find_all('p')
                 noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
-            div = soupArt.find('div', attrs={'id':'cuerpo_noticia'})
+            div = soupArt.find('div', attrs={'id': 'cuerpo_noticia'})
             if(div != None):
                 print('div')
-                everyP = section.find_all('p')
+                everyP = div.find_all('p')
                 noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
@@ -96,22 +103,37 @@ def scrapeElPais():
                 'noticia': noticia,
                 'fecha': fecha
             }
-            f = open(f'El Pais/{noticiario["name"]}/{noticiario["name"]}.{fecha}.txt','w+')
-            f.write(doc)
+            jsonDoc = json.dumps(doc)
+            path = os.getcwd()
+            f = open(path + f'/El Pais/{noticiario["name"]}/{noticiario["name"]}.{fecha}.txt', 'w+')
+            f.writelines(jsonDoc)
             f.close()
 
-        
-          
-      
-        
-        
 
 def scrape20Minutos():
     print('20 minutos')
 
+
+def createDirectories():
+    directories = ['/El Mundo/Salud',
+                   '/El Mundo/Tecnologia',
+                   '/El Mundo/Ciencia',
+                   '/El Pais/Sanidad',
+                   '/El Pais/Tecnologia',
+                   '/El Pais/Ciencia',
+                   '/20 Minutos/Salud',
+                   '/20 Minutos/Tecnologia',
+                   '/20 Minutos/Ciencia']
+    for directory in directories:
+        if not os.path.exists(os.getcwd() + '' + directory):
+            os.makedirs(os.getcwd() + '' + directory)
+
+
 def scrapeAll():
-    #scrapeElMundo()
+    createDirectories()
+    # scrapeElMundo()
     scrapeElPais()
     scrape20Minutos()
+
 
 scrapeAll()
