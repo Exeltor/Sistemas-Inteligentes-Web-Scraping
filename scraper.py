@@ -91,28 +91,41 @@ def scrapeElMundo():
 def scrapeElPais():
     print('el pais')
     noticiarios = [{'name': 'Sanidad', 'code': 'noticias/salud'}, {'name': 'Ciencia',
-                                                                 'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'ciencia'}]
+                                                                 'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'tecnologia'}]
     for noticiario in noticiarios:
         r = requests.get(f'https://elpais.com/{noticiario["code"]}/')
         soup = BeautifulSoup(r.text, 'html.parser')
         articles = soup.find_all('article')
         for article in articles:
             title = article.find('h2').text
-            print(title)
-            link = 'https://elpais.com' + article.find('h2').find('a')['href']
-            fecha = article.find('time')['datetime']
-            req = requests.get(link)
+            try:
+                link = 'https://elpais.com' + article.find('h2').find('a')['href']
+                req = requests.get(link)
+            except:
+                print(link)
+            try:
+                link = article.find('h2').find('a')['href']
+                req = requests.get(link)
+            except:
+                print(link)
+            
             soupArt = BeautifulSoup(req.text, 'html.parser')
+            try:
+                fecha = soupArt.find('time')['datetime']
+            except:
+                print('no fecha time')
+            try:
+                fecha = soupArt.find('div', attrs={'class': 'place_and_time'}).find('a').text
+            except:
+                print('no fecha div')
             section = soupArt.find('section', attrs={'class': 'article_body'})
             if(section != None):
-                print('section')
                 everyP = section.find_all('p')
                 noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
             div = soupArt.find('div', attrs={'id': 'cuerpo_noticia'})
             if(div != None):
-                print('div')
                 everyP = div.find_all('p')
                 noticia = ''
                 for eachP in everyP:
