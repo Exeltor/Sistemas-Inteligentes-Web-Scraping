@@ -66,7 +66,7 @@ def scrapeElMundo():
                 try:
                     unwantedPremium.extract()
                 except:
-                    print('no premium')
+                    continue
 
                 try:
                     unwantedDivRelated.extract()
@@ -130,6 +130,8 @@ def scrapeElPais():
                 noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
+            if(noticia == ''): 
+                continue
             doc = {
                 'title': title,
                 'categoria': noticiario['name'],
@@ -213,5 +215,5 @@ def scrapeAll():
     scrapeElPais()
     scrape20Minutos()
 
-
+print("vuaaaaaaaaaamo0s")
 scrapeAll()
