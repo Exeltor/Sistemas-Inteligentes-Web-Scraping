@@ -24,7 +24,7 @@ def tokenizeAll():
     print(articlesTK)
     print(len(articlesTK))
 
-def tokenizador():
+def tokenizador(query):
     metric_list = []
     for root, dirs, files in os.walk(os.getcwd()): #recorre todos los archivos
         for name in files:
@@ -39,7 +39,7 @@ def tokenizador():
                 final_tokens = stem(clean_tokens)
                 doc = {
                     'name': f'{root}/{name}',
-                    'distance': edit_distance('coronavirus', final_tokens)
+                    'distance': edit_distance(query, final_tokens)
                 }
                 metric_list.append(doc)
 
@@ -108,10 +108,8 @@ def radixSort(arr):
   
 
 
-lista = tokenizador()
+lista = tokenizador(input("Introduce la query: "))
 print('tokenizador hecho')
 
 radixSort(lista)
 print(lista)
-
-#/Users/exeltor/Documents/GitHub/Sistemas-Inteligentes-Web-Scraping/El Mundo/Salud/Salud.2020-04-03T18:05:06Z.txt
