@@ -214,6 +214,3 @@ def scrapeAll():
     scrapeElMundo()
     scrapeElPais()
     scrape20Minutos()
-
-print("vuaaaaaaaaaamo0s")
-scrapeAll()
