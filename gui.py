@@ -1,11 +1,12 @@
 import sys
 from pathlib import Path
  
-from qtpy.QtWidgets import ( QApplication, QMainWindow, QAction, QMessageBox, QLabel ) 
+from qtpy.QtWidgets import QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel 
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import Slot 
 import qtawesome as qta
 import scraper as scraper
+import tokenizer as tk
  
  
 class VentanaPrincipal(QMainWindow):
@@ -13,7 +14,7 @@ class VentanaPrincipal(QMainWindow):
         QMainWindow.__init__(self, parent)
         self.setup_ui()
         self.show_home()
- 
+
     def setup_ui(self):
         self.resize(500, 300)
         self.move(0, 0)
@@ -22,17 +23,11 @@ class VentanaPrincipal(QMainWindow):
         self.setWindowIcon(QIcon(str(ruta_icono)))
         self.statusBar().showMessage('Listo')
         self.setup_menu()
-      
 
     def setup_menu(self):
         menubar = self.menuBar()
 
-        file_menu = menubar.addMenu('&Archivo') 
-        home_action = QAction(qta.icon('fa5s.home'),  '&Inicio',  self) 
-        home_action.setShortcut('Ctrl+H') 
-        home_action.setStatusTip('Ir a Inicio....')
-        #home_action.triggered.connect(  ) # Introducir cambio de pantalla a inicio
-        file_menu.addAction(home_action) 
+        file_menu = menubar.addMenu('&Archivo')
 
         refresh_action = QAction(qta.icon('fa5s.sync'),  '&Actualizar',  self) 
         refresh_action.setShortcut('Ctrl+A') 
@@ -53,7 +48,7 @@ class VentanaPrincipal(QMainWindow):
         about_action.setStatusTip('Acerca de...')
         about_action.triggered.connect( self.show_about_dialog) 
         help_menu.addAction(about_action)
- 
+
     @Slot()
     def show_about_dialog(self): ## NUEVA LÍNEA
         msg_box = QMessageBox() 
@@ -62,13 +57,29 @@ class VentanaPrincipal(QMainWindow):
         msg_box.setWindowTitle("Acerca de") 
         msg_box.setStandardButtons(QMessageBox.Close) 
         msg_box.exec_()
-    
+
     def show_home(self):
-        label = QLabel(self)
-        label.setText('label')
-        label.move(50,50)
-    
-        
+        self.text_edit = QPlainTextEdit(self)
+        self.text_edit.setFixedHeight(30)
+        self.text_edit.setFixedWidth(400)
+        self.text_edit.move(10,30)
+
+        search_button = QPushButton(self)
+        search_button.setFixedWidth(70)
+        search_button.setText("Buscar")
+        search_button.move(420, 30)
+        search_button.clicked.connect(self.buscar)
+
+        self.scroll_area = QScrollArea(self)
+        self.scroll_area.move(10,70)
+        self.scroll_area.setFixedSize(480, 200)
+
+    def buscar(self):
+        lista = tk.search(self.text_edit.toPlainText())
+        for item in lista:
+            print(f'{item["name"]} --- {item["distance"]}')
+        #Aqui hay que meter los titulos de cada archivo en el {self.scroll_area} en una lista scrollable
+
 
 
 def main():

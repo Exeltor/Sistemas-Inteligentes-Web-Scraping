@@ -106,10 +106,8 @@ def radixSort(arr):
         countingSort(arr,exp) 
         exp *= 10
   
+def search(texto):
+    lista = tokenizador(texto)
+    radixSort(lista)
+    return lista
 
-
-lista = tokenizador(input("Introduce la query: "))
-print('tokenizador hecho')
-
-radixSort(lista)
-print(lista)
