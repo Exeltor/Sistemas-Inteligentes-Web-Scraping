@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
  
-from qtpy.QtWidgets import QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel 
+from qtpy.QtWidgets import QGroupBox, QFormLayout, QVBoxLayout, QWidget, QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel 
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import Slot 
 import qtawesome as qta
@@ -69,17 +69,32 @@ class VentanaPrincipal(QMainWindow):
         search_button.setText("Buscar")
         search_button.move(420, 30)
         search_button.clicked.connect(self.buscar)
-
-        self.scroll_area = QScrollArea(self)
-        self.scroll_area.move(10,70)
-        self.scroll_area.setFixedSize(480, 200)
+        
 
     def buscar(self):
         lista = tk.search(self.text_edit.toPlainText())
+        self.formLayout = QFormLayout()
+        self.groupBox = QGroupBox("Resultados de la búsqueda")
+
+        labelLis = []
+        comboList = []
+        i = 0
+        self.groupBox.setLayout(self.formLayout)
         for item in lista:
             print(f'{item["name"]} --- {item["distance"]}')
-        #Aqui hay que meter los titulos de cada archivo en el {self.scroll_area} en una lista scrollable
+            #Aqui hay que meter los titulos de cada archivo en el {self.scroll_area} en una lista scrollable
+            label = QLabel(f'{item["name"]} --- {item["distance"]}')
+            labelLis.append(label)
+            comboList.append(QPushButton("Abrir noticia"))
+            self.formLayout.addRow(labelLis[i], comboList[i])
+            i += 1
 
+        scroll_area = QScrollArea(self)
+        scroll_area.setWidget(self.groupBox)
+        scroll_area.move(10,70)
+        scroll_area.setFixedSize(480, 200)
+        layout = QVBoxLayout(self)
+        layout.addWidget(scroll_area)
 
 
 def main():
