@@ -18,7 +18,6 @@ noticias = [{}]
 
 
 def scrapeElMundo():
-    print('el mundo')
     categorias = [
         {'name': 'Salud', 'endpoint': 'ciencia-y-salud/salud.html'},
         {'name': 'Ciencia', 'endpoint': 'ciencia-y-salud/ciencia.html'},
@@ -32,7 +31,6 @@ def scrapeElMundo():
         articles = soup.find_all('article')
         for article in articles:
             for header in article.find_all('header'):
-                print(header.text)
                 link = header.find('a')['href']
                 result = requests.get(link)
                 soup = BeautifulSoup(result.text)
@@ -89,7 +87,6 @@ def scrapeElMundo():
 
 
 def scrapeElPais():
-    print('el pais')
     noticiarios = [{'name': 'Sanidad', 'code': 'noticias/salud'}, {'name': 'Ciencia',
                                                                  'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'tecnologia'}]
     for noticiario in noticiarios:
@@ -146,7 +143,6 @@ def scrapeElPais():
 
 
 def scrape20Minutos():
-    print('20 minutos')
     categorias = [
         {'name': 'Salud', 'endpoint': 'salud/'},
         {'name': 'Ciencia', 'endpoint': 'ciencia/'},
@@ -163,7 +159,6 @@ def scrape20Minutos():
             articleLink = hyperLink['href']
             articleTitle = hyperLink.text
             titleClean = articleTitle.strip()
-            print(titleClean)
             articlePage = requests.get(articleLink)
             parsedPage = BeautifulSoup(articlePage.text, 'html.parser')
             dateTime = parsedPage.find('span', { 'class': 'article-date' })

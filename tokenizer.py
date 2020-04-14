@@ -21,8 +21,6 @@ def tokenizeAll():
                 tk['tokens'] = clean_tokens[:]
                 articlesTK.append(tk) #añadimos todo a la lista que contiene todos los datos
 
-    print(articlesTK)
-    print(len(articlesTK))
 
 def tokenizador(query):
     metric_list = []
