@@ -1,16 +1,12 @@
-import sys
-from pathlib import Path
+import sys, qtpy.QtCore, qtpy.QtGui, json, os
  
 from qtpy.QtWidgets import QGroupBox, QFormLayout, QVBoxLayout, QWidget, QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel, QDialog 
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import Slot
-import qtpy.QtCore, qtpy.QtGui
 import qtawesome as qta
 import scraper as scraper
 import tokenizer as tk
-from qtpy import QtCore, QtWidgets
-import json
-import os
+from qtpy import QtCore
  
  
 class VentanaPrincipal(QMainWindow):
@@ -23,8 +19,6 @@ class VentanaPrincipal(QMainWindow):
         self.resize(500, 100)
         self.move((1920/2) - (500/2), (1080/2) - (100/2))
         self.setWindowTitle('Buscador')
-        ruta_icono =  Path('.', 'images', 'homepage.png')
-        self.setWindowIcon(QIcon(str(ruta_icono)))
         self.statusBar().showMessage('Listo')
         self.setup_menu()
 
