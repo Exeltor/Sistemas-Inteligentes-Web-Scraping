@@ -3,24 +3,38 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import SnowballStemmer
 from nltk.metrics import edit_distance
+import numpy as np
+from nltk.internals import Counter
 
 sw = stopwords.words('spanish')
-def tokenizeAll():
-    tk = {}
-    articlesTK = []
+
+def df():
+    DF = {}
+    for i in range(len(processed_text)):
+        tokens = processed_text[i]
+        for w in tokens:
+            try:
+                DF[w].add(i)
+            except:
+                DF[w] = {i}
+
+def tfIDF():
+    tf_idf = {}
+    for i in range(N):
+        tokens = processed_text[i]
+        counter = Counter(tokens + processed_title[i])
+        for token in np.unique(tokens):
+            tf = counter[token]/words_count
+            df = doc_freq(token)
+            idf = np.log(N/(df+1))
+            tf_idf[doc, token] = tf*idf
+
+def recorrerTXT():
+    articulos = []
     for root, dirs, files in os.walk(os.getcwd()): #recorre todos los archivos
         for name in files:
-            if name.endswith('.txt'): #entramos solo en los que son txt, los que hemos creado nosotros
-                fjson = json.load(open(f'{root}/{name}')) #leemos los datos en formato json de los txt
-                tokens = [i for i in fjson['title'].split()] + [t for t in fjson['noticia'].split()] #separamos en una lista cada palabra 
-                clean_tokens = tokens[:] #duplicamos el array
-                for token in tokens:
-                    if token in sw:
-                        clean_tokens.remove(token) #quitamos las stopwords
-                tk['filename'] = f'{root}/{name}'
-                tk['tokens'] = clean_tokens[:]
-                articlesTK.append(tk) #añadimos todo a la lista que contiene todos los datos
-
+            if name.endswith('.txt'):
+                articulos.append(f'{root}/{name}')
 
 def tokenizador(query):
     metric_list = []
@@ -103,9 +117,13 @@ def radixSort(arr):
     while max1/exp > 0: 
         countingSort(arr,exp) 
         exp *= 10
-  
+
+def tokenizerQ(texto):
+    print("pollon")
+    
 def search(texto):
-    lista = tokenizador(texto)
+    text = tokenizerQ(texto)
+    lista = tokenizador(text)
     radixSort(lista)
     return lista
 
