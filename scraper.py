@@ -54,12 +54,12 @@ def scrapeElMundo():
                 try:
                     unwantedUl.extract()
                 except:
-                    print('no ul')
+                    pass
 
                 try:
                     unwantedDiv.extract()
                 except:
-                    print('no trust')
+                    pass
 
                 try:
                     unwantedPremium.extract()
@@ -69,7 +69,7 @@ def scrapeElMundo():
                 try:
                     unwantedDivRelated.extract()
                 except:
-                    print('no related')
+                    pass
                 
                 dateTime = article.find('time')['datetime']
                 doc = {
@@ -99,22 +99,22 @@ def scrapeElPais():
                 link = 'https://elpais.com' + article.find('h2').find('a')['href']
                 req = requests.get(link)
             except:
-                print(link)
+                pass
             try:
                 link = article.find('h2').find('a')['href']
                 req = requests.get(link)
             except:
-                print(link)
+                pass
             
             soupArt = BeautifulSoup(req.text, 'html.parser')
             try:
                 fecha = soupArt.find('time')['datetime']
             except:
-                print('no fecha time')
+                pass
             try:
                 fecha = soupArt.find('div', attrs={'class': 'place_and_time'}).find('a').text
             except:
-                print('no fecha div')
+                pass
             section = soupArt.find('section', attrs={'class': 'article_body'})
             if(section != None):
                 everyP = section.find_all('p')

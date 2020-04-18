@@ -1,13 +1,12 @@
 import sys, qtpy.QtCore, qtpy.QtGui, json, os
  
-from qtpy.QtWidgets import QGroupBox, QFormLayout, QVBoxLayout, QWidget, QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel, QDialog 
+from qtpy.QtWidgets import QGroupBox, QFormLayout, QVBoxLayout, QWidget, QScrollArea, QPushButton, QPlainTextEdit, QApplication, QMainWindow, QAction, QMessageBox, QLabel, QDialog, QFileDialog 
 from qtpy.QtGui import QIcon
 from qtpy.QtCore import Slot
 import qtawesome as qta
 import scraper as scraper
-import tokenizer as tk
 from qtpy import QtCore
- 
+import procesador as procesador
  
 class VentanaPrincipal(QMainWindow):
     def __init__(self, parent=None ):
@@ -16,8 +15,10 @@ class VentanaPrincipal(QMainWindow):
         self.show_home()
 
     def setup_ui(self):
-        self.resize(500, 100)
-        self.move((1920/2) - (500/2), (1080/2) - (100/2))
+        self.resize(580, 200)
+        self.setFixedHeight(140)
+        self.setFixedWidth(580)
+        self.move((1920/2) - (500/2), (1080/2) - (200/2))
         self.setWindowTitle('Buscador')
         self.statusBar().showMessage('Listo')
         self.setup_menu()
@@ -57,48 +58,106 @@ class VentanaPrincipal(QMainWindow):
         msg_box.exec_()
 
     def show_home(self):
+        labelBusqueda = QLabel('Tu busqueda', self)
+        labelBusqueda.move(10, 25)
         self.text_edit = QPlainTextEdit(self)
         self.text_edit.setFixedHeight(30)
         self.text_edit.setFixedWidth(400)
-        self.text_edit.move(10,40)
+        self.text_edit.move(10,60)
+        
+        labelnum = QLabel('Numero de articulos', self)
+        labelnum.move(420, 25)
+        labelnum.setFixedWidth(150)
+        self.text_edit_num = QPlainTextEdit("5", self)
+        self.text_edit_num.setFixedHeight(30)
+        self.text_edit_num.setFixedWidth(150)
+        self.text_edit_num.move(420,60)
+        
 
         search_button = QPushButton(self)
         search_button.setFixedWidth(70)
         search_button.setText("Buscar")
-        search_button.move(420, 40)
+        search_button.move(500, 100)
         search_button.clicked.connect(self.buscar)
+
+        openDirButton = QPushButton(self)
+        openDirButton.setFixedWidth(110)
+        openDirButton.setText("Abrir Directorio")
+        openDirButton.move(380, 100)
+        openDirButton.clicked.connect(self.getFile)
+
+    def getfile(self):
+        fname = QFileDialog.getOpenFileName(self, "Open Image", "/home")
+        Dialog = QDialog()
+       # self.reject()
+        ui = Noticia_Dialog(Dialog)
+        ui.setupUi(fname)
+
+    def getFile(self):
+        dialog = FileDialog()
+
         
 
     def buscar(self):
         # abrir dialogo carga aqui
-        lista = tk.search(self.text_edit.toPlainText())
+        lista = procesador.search(self.text_edit.toPlainText(), self.text_edit_num.toPlainText())
         # cerrar
-        self.abrirVentanaLista(lista)
+        self.abrirVentanaLista(lista, self.text_edit.toPlainText())
             #Aqui hay que meter los titulos de cada archivo en el {self.scroll_area} en una lista scrollable
 
-    def abrirVentanaLista(self, lista):
+    def abrirVentanaLista(self, lista, query):
         Dialog = QDialog()
         ui = Ui_Dialog(Dialog)
-        ui.setupUi(lista)
+        ui.setupUi(lista, query)
+
+class FileDialog(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.title = 'Explorador de noticias'
+        self.left = 10
+        self.top = 10
+        self.width = 640
+        self.height = 480
+        self.initUI()
+    
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        
+        self.openFileNameDialog()
+        
+        self.show()
+    
+    def openFileNameDialog(self):
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        fileName, _ = QFileDialog.getOpenFileName(self,"Elige tu archivo", "","Text Files (*.txt)", options=options)
+        if fileName:
+            Dialog = QDialog()
+            ui = Noticia_Dialog(Dialog)
+            ui.setupUi(fileName)
+
 
 class Ui_Dialog(QDialog):
     def __init__(self, parent):
         QDialog.__init__(self, parent)
 
-    def setupUi(self, lista):
+    def setupUi(self, lista, query):
         
         formLayout = QFormLayout()
-        groupBox = QGroupBox("Resultado de la búsqueda")
+        groupBox = QGroupBox(f"Resultado de la búsqueda: {query}")
         labelLis = []
         comboList = []
         for i in range(len(lista)):
+            
             f = open(lista[i]['name'], 'r', encoding='utf-8')
             jsonData = json.loads(f.read())
             f.close()
-            labelLis.append(QLabel(f'{jsonData["title"]} --- {lista[i]["distance"]}'))
-            button = QPushButton("Abrir noticia")
-            button.clicked.connect(self.make_openFile(lista[i]["name"]))
-            comboList.append(button)
+            labelLis.append(QLabel(f'{jsonData["title"]} --- {round(float(lista[i]["distance"][0][0])*100, 2)}% --- {jsonData["categoria"]}'))
+            buttonOpen = QPushButton("Abrir noticia")
+            buttonOpen.clicked.connect(self.make_openFile(lista[i]["name"]))
+            comboList.append(buttonOpen)
             formLayout.addRow(labelLis[i], comboList[i])
         groupBox.setLayout(formLayout)
         scroll = QScrollArea(self)
@@ -117,10 +176,11 @@ class Ui_Dialog(QDialog):
     def make_openFile(self, path):
         def openFile():
             Dialog = QDialog()
+            self.reject()
             ui = Noticia_Dialog(Dialog)
             ui.setupUi(path)
         return openFile
-        
+    
 
 class Noticia_Dialog(QDialog):
     def __init__(self, parent):
@@ -141,10 +201,25 @@ class Noticia_Dialog(QDialog):
         labelTit.move(10, 20)
         labelFecha = QLabel(fecha, self)
         labelFecha.move(10, 670)
+        buttonSearchSim = QPushButton("Buscar noticias similares", self)
+        buttonSearchSim.move(1000, 20)
+        buttonSearchSim.clicked.connect(self.make_searchSim(path))
         self.setWindowTitle("Texto de la noticia")
         self.setMinimumSize(1220, 700)
         self.show()
         self.exec_()
+
+    def make_searchSim(self, path):
+        def searchSim():
+            self.reject()
+            Dialog = QDialog()
+            file = open(path,"r", encoding="utf8", errors='ignore')
+            jsonContent = json.loads(file.read().strip())
+            file.close()
+            lista = procesador.search(str(jsonContent["noticia"]))
+            ui = Ui_Dialog(Dialog)
+            ui.setupUi(lista, path)
+        return searchSim
 
 def main():
  
