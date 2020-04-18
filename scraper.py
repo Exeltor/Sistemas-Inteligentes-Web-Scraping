@@ -63,14 +63,18 @@ def scrapeElMundo():
 
                 try:
                     unwantedPremium.extract()
-                except:
                     continue
+                except:
+                    pass
 
                 try:
                     unwantedDivRelated.extract()
                 except:
                     pass
                 
+                if not articleBody.text:
+                    continue
+            
                 dateTime = article.find('time')['datetime']
                 doc = {
                     'title': header.text,
@@ -95,40 +99,45 @@ def scrapeElPais():
         articles = soup.find_all('article')
         for article in articles:
             title = article.find('h2').text
-            try:
-                link = 'https://elpais.com' + article.find('h2').find('a')['href']
-                req = requests.get(link)
-            except:
-                pass
-            try:
+            linkNoParsed = article.find('h2').find('a')['href']
+            if(linkNoParsed[0] != '/'):
                 link = article.find('h2').find('a')['href']
+            else:
+                link = 'https://elpais.com' + article.find('h2').find('a')['href']
+            try:
                 req = requests.get(link)
             except:
-                pass
+                continue
             
             soupArt = BeautifulSoup(req.text, 'html.parser')
-            try:
-                fecha = soupArt.find('time')['datetime']
-            except:
-                pass
-            try:
-                fecha = soupArt.find('div', attrs={'class': 'place_and_time'}).find('a').text
-            except:
-                pass
+            fecha1 = soupArt.find('time')
+            if fecha1:
+                fecha = fecha1['datetime']
+            if fecha1 is None:
+                fecha1 = soupArt.find('div', attrs={'class': 'place_and_time'})
+                if(fecha1 != None):
+                    fecha = fecha1.find('a').text
+            if fecha1 is None:
+                fecha = soupArt.find('a', attrs={'class': 'a_ti'}).text
+            noticia = ''
             section = soupArt.find('section', attrs={'class': 'article_body'})
             if(section != None):
                 everyP = section.find_all('p')
-                noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
             div = soupArt.find('div', attrs={'id': 'cuerpo_noticia'})
             if(div != None):
                 everyP = div.find_all('p')
-                noticia = ''
                 for eachP in everyP:
                     noticia += eachP.text
-            if(noticia == ''): 
+            div = soupArt.find('div', attrs={'class': 'article_body'})
+            if(div != None):
+                everyP = div.find_all('p')
+                for eachP in everyP:
+                    noticia += eachP.text
+            if(noticia == ''):
                 continue
+            
             doc = {
                 'title': title,
                 'categoria': noticiario['name'],
@@ -140,6 +149,7 @@ def scrapeElPais():
             f = open(path + f'/El Pais/{noticiario["name"]}/{noticiario["name"]}.{fecha}.txt', 'w+')
             f.writelines(jsonDoc)
             f.close()
+            req.close()
 
 
 def scrape20Minutos():

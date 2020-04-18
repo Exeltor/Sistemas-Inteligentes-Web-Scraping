@@ -13,6 +13,9 @@ Para iniciar el programa, se requiere la instalación de las siguientes dependen
 - NLTK
 - json
 
+Antes de realizar búsquedas, se necesita rellenar la base de datos de noticias, para ello, es necesario acceder al menú "Archivo"
+y posteriormente "Actualizar" para descargar todas las noticias disponibles
+
 Tras la instalación de las dependencias, ejecutar:
 gui.py
 

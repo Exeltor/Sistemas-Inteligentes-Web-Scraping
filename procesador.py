@@ -34,7 +34,7 @@ def calcDistancia(query, noticias):
 def distanceKey(distancia):
     return distancia['distance']
 
-def search(textQuery, number=200):
+def search(textQuery, number=500):
     noticias = extractor()
     query, noticias = procesado(textQuery, noticias)
     distancias = calcDistancia(query, noticias)
