@@ -38,6 +38,16 @@ def scrapeElMundo():
                 articleBody = article.find(
                     'div', {'class': 'ue-l-article__body ue-c-article__body'})
 
+                articleTagContainer = article.find(
+                    'ul', {'class': 'ue-c-article__tags'}
+                )
+                if articleTagContainer is None:
+                    continue
+
+                tags = []
+                for tag in articleTagContainer.find_all('a'):
+                    tags.append(tag.text)
+
                 if articleBody is None:
                     continue
                 # Unwanted tags
@@ -79,6 +89,7 @@ def scrapeElMundo():
                 doc = {
                     'title': header.text,
                     'categoria': categoria['name'],
+                    'tags': tags,
                     'noticia': articleBody.text,
                     'fecha': dateTime
                 }
@@ -94,6 +105,7 @@ def scrapeElPais():
     noticiarios = [{'name': 'Sanidad', 'code': 'noticias/salud'}, {'name': 'Ciencia',
                                                                  'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'tecnologia'}]
     for noticiario in noticiarios:
+        print('noticia')
         r = requests.get(f'https://elpais.com/{noticiario["code"]}/')
         soup = BeautifulSoup(r.text, 'html.parser')
         articles = soup.find_all('article')
@@ -110,6 +122,18 @@ def scrapeElPais():
                 continue
             
             soupArt = BeautifulSoup(req.text, 'html.parser')
+
+            articleTagContainer = soupArt.find(
+                'ul', {'class': 'tags_list'}
+            )
+
+            if articleTagContainer is None:
+                continue
+
+            tags = []
+            for tag in articleTagContainer.find_all('a'):
+                tags.append(tag.text)
+            
             fecha1 = soupArt.find('time')
             if fecha1:
                 fecha = fecha1['datetime']
@@ -141,10 +165,12 @@ def scrapeElPais():
             doc = {
                 'title': title,
                 'categoria': noticiario['name'],
+                'tags': tags,
                 'noticia': noticia,
                 'fecha': fecha
             }
             jsonDoc = json.dumps(doc)
+            print(jsonDoc)
             path = os.getcwd()
             f = open(path + f'/El Pais/{noticiario["name"]}/{noticiario["name"]}.{fecha}.txt', 'w+')
             f.writelines(jsonDoc)
@@ -183,11 +209,24 @@ def scrape20Minutos():
             if articleContent is None:
                 continue
 
+            articleTagContainer = parsedPage.find(
+                'div', {'class': 'module module-related'}
+            )
+
+            if articleTagContainer is None:
+                continue
+
+            tags = []
+            for tagItem in articleTagContainer.find_all('li', {'class': 'tag'}):
+                tag = tagItem.find('a').text.strip()
+                tags.append(tag)
+
             noticia = articleContent.text
 
             doc = {
                 'title': titleClean,
                 'categoria': categoria['name'],
+                'tags': tags,
                 'noticia': noticia,
                 'fecha': dateTime.text
             }
@@ -215,7 +254,9 @@ def createDirectories():
 
 
 def scrapeAll():
-    createDirectories()
-    scrapeElMundo()
-    scrapeElPais()
+    # createDirectories()
+    # scrapeElMundo()
+    # scrapeElPais()
     scrape20Minutos()
+
+scrapeAll()
