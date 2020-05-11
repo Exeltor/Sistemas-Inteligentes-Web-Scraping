@@ -254,9 +254,9 @@ def createDirectories():
 
 
 def scrapeAll():
-    # createDirectories()
-    # scrapeElMundo()
-    # scrapeElPais()
+    createDirectories()
+    scrapeElMundo()
+    scrapeElPais()
     scrape20Minutos()
 
 scrapeAll()
