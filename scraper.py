@@ -99,85 +99,6 @@ def scrapeElMundo():
                 f.writelines(jsonDoc)
                 f.close()
 
-
-
-def scrapeElPais():
-    noticiarios = [{'name': 'Sanidad', 'code': 'noticias/salud'}, {'name': 'Ciencia',
-                                                                 'code': 'ciencia'}, {'name': 'Tecnologia', 'code': 'tecnologia'}]
-    for noticiario in noticiarios:
-        print('noticia')
-        r = requests.get(f'https://elpais.com/{noticiario["code"]}/')
-        soup = BeautifulSoup(r.text, 'html.parser')
-        articles = soup.find_all('article')
-        for article in articles:
-            title = article.find('h2').text
-            linkNoParsed = article.find('h2').find('a')['href']
-            if(linkNoParsed[0] != '/'):
-                link = article.find('h2').find('a')['href']
-            else:
-                link = 'https://elpais.com' + article.find('h2').find('a')['href']
-            try:
-                req = requests.get(link)
-            except:
-                continue
-            
-            soupArt = BeautifulSoup(req.text, 'html.parser')
-
-            articleTagContainer = soupArt.find(
-                'ul', {'class': 'tags_list'}
-            )
-
-            if articleTagContainer is None:
-                continue
-
-            tags = []
-            for tag in articleTagContainer.find_all('a'):
-                tags.append(tag.text)
-            
-            fecha1 = soupArt.find('time')
-            if fecha1:
-                fecha = fecha1['datetime']
-            if fecha1 is None:
-                fecha1 = soupArt.find('div', attrs={'class': 'place_and_time'})
-                if(fecha1 != None):
-                    fecha = fecha1.find('a').text
-            if fecha1 is None:
-                fecha = soupArt.find('a', attrs={'class': 'a_ti'}).text
-            noticia = ''
-            section = soupArt.find('section', attrs={'class': 'article_body'})
-            if(section != None):
-                everyP = section.find_all('p')
-                for eachP in everyP:
-                    noticia += eachP.text
-            div = soupArt.find('div', attrs={'id': 'cuerpo_noticia'})
-            if(div != None):
-                everyP = div.find_all('p')
-                for eachP in everyP:
-                    noticia += eachP.text
-            div = soupArt.find('div', attrs={'class': 'article_body'})
-            if(div != None):
-                everyP = div.find_all('p')
-                for eachP in everyP:
-                    noticia += eachP.text
-            if(noticia == ''):
-                continue
-            
-            doc = {
-                'title': title,
-                'categoria': noticiario['name'],
-                'tags': tags,
-                'noticia': noticia,
-                'fecha': fecha
-            }
-            jsonDoc = json.dumps(doc)
-            print(jsonDoc)
-            path = os.getcwd()
-            f = open(path + f'/El Pais/{noticiario["name"]}/{noticiario["name"]}.{fecha}.txt', 'w+')
-            f.writelines(jsonDoc)
-            f.close()
-            req.close()
-
-
 def scrape20Minutos():
     categorias = [
         {'name': 'Salud', 'endpoint': 'salud/'},
@@ -242,9 +163,6 @@ def createDirectories():
     directories = ['/El Mundo/Salud',
                    '/El Mundo/Tecnologia',
                    '/El Mundo/Ciencia',
-                   '/El Pais/Sanidad',
-                   '/El Pais/Tecnologia',
-                   '/El Pais/Ciencia',
                    '/20 Minutos/Salud',
                    '/20 Minutos/Tecnologia',
                    '/20 Minutos/Ciencia']
@@ -256,7 +174,6 @@ def createDirectories():
 def scrapeAll():
     createDirectories()
     scrapeElMundo()
-    scrapeElPais()
     scrape20Minutos()
 
 scrapeAll()
