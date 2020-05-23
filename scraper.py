@@ -27,13 +27,13 @@ def scrapeElMundo():
     for categoria in categorias:
         r = requests.get(f'https://www.elmundo.es/{categoria["endpoint"]}')
         webContent = r.text
-        soup = BeautifulSoup(webContent)
+        soup = BeautifulSoup(webContent, 'html.parser')
         articles = soup.find_all('article')
         for article in articles:
             for header in article.find_all('header'):
                 link = header.find('a')['href']
                 result = requests.get(link)
-                soup = BeautifulSoup(result.text)
+                soup = BeautifulSoup(result.text, 'html.parser')
                 article = soup.find('article')
                 articleBody = article.find(
                     'div', {'class': 'ue-l-article__body ue-c-article__body'})
@@ -176,4 +176,3 @@ def scrapeAll():
     scrapeElMundo()
     scrape20Minutos()
 
-scrapeAll()

@@ -154,7 +154,7 @@ class Ui_Dialog(QDialog):
             f = open(lista[i]['name'], 'r', encoding='utf-8')
             jsonData = json.loads(f.read())
             f.close()
-            labelLis.append(QLabel(f'{jsonData["title"]} --- {round(float(lista[i]["distance"][0][0])*100, 2)}% --- {jsonData["categoria"]}'))
+            labelLis.append(QLabel(f'{jsonData["title"]} --- {round(float(lista[i]["distance"])*100, 2)}% --- {jsonData["categoria"]}'))
             buttonOpen = QPushButton("Abrir noticia")
             buttonOpen.clicked.connect(self.make_openFile(lista[i]["name"]))
             comboList.append(buttonOpen)
@@ -192,20 +192,28 @@ class Noticia_Dialog(QDialog):
         noticia = jsonData["noticia"]
         titulo = jsonData["title"]
         fecha = jsonData["fecha"]
+        tags = ""
+        for tag in jsonData["tags"]:
+            tags += tag + " | "
         f.close()
         textArea = QPlainTextEdit(noticia, self)
         textArea.setReadOnly(True)
-        textArea.move(10,50)
+        textArea.move(10,60)
         textArea.setFixedSize(1200, 600)
         labelTit = QLabel(titulo, self)
-        labelTit.move(10, 20)
+        labelTit.move(10, 30)
         labelFecha = QLabel(fecha, self)
         labelFecha.move(10, 670)
-        buttonSearchSim = QPushButton("Buscar noticias similares", self)
-        buttonSearchSim.move(1000, 20)
+        labelTags = QLabel(tags[:-3], self)
+        labelTags.move(300, 670)
+        buttonSearchSim = QPushButton("Buscar noticias similares (text)", self)
+        buttonSearchSim.move(1000, 30)
         buttonSearchSim.clicked.connect(self.make_searchSim(path))
+        buttonTagsSim = QPushButton("Buscar noticias similares (tags)", self)
+        buttonTagsSim.move(1000, 5)
+        buttonTagsSim.clicked.connect(self.make_tagsSim(path))
         self.setWindowTitle("Texto de la noticia")
-        self.setMinimumSize(1220, 700)
+        self.setMinimumSize(1220, 705)
         self.show()
         self.exec_()
 
@@ -221,6 +229,17 @@ class Noticia_Dialog(QDialog):
             ui.setupUi(lista, path)
         return searchSim
 
+    def make_tagsSim(self, path):
+        def tagsSim():
+            self.reject()
+            Dialog = QDialog()
+            file = open(path,"r", encoding="utf8", errors='ignore')
+            jsonContent = json.loads(file.read().strip())
+            file.close()
+            lista = procesador.similaritiesTAGS(str(jsonContent["tags"]))
+            ui = Ui_Dialog(Dialog)
+            ui.setupUi(lista, path)
+        return tagsSim
 def main():
  
     app = QApplication(sys.argv)
