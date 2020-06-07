@@ -66,8 +66,6 @@ def procesadoTAGS(tagsQuery, noticias):
     return tagsQuery, noticias
 
 def calcDistanciaTAGS(query, noticia):
-    print(query)
-    print(noticia)
     coincidencias = len(set(query).intersection(noticia))
     return (2 * coincidencias) / (len(query) + len(noticia))
 
@@ -75,7 +73,6 @@ def forDistanciaTAGS(query, noticias):
     distancias = []
     for noticia in noticias:
         distancias.append({"distance": calcDistanciaTAGS(query, noticia["tags"]), "name": noticia["nombre"]})
-    print(distancias)
     return distancias
 
 def similaritiesTAGS(tagsQuery, number=500):
